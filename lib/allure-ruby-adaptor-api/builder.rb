@@ -15,7 +15,7 @@ module AllureRubyAdaptorApi
       def start_suite(suite, labels = {:severity => :normal})
         init_suites
         MUTEX.synchronize do
-          puts "Starting case_or_suite #{suite} with labels #{labels}"
+          # puts "Starting case_or_suite #{suite} with labels #{labels}"
           self.suites[suite] = {
               :title => suite,
               :start => timestamp,
@@ -27,7 +27,7 @@ module AllureRubyAdaptorApi
 
       def start_test(suite, test, labels = {:severity => :normal})
         MUTEX.synchronize do
-          puts "Starting test #{suite}.#{test} with labels #{labels}"
+          # puts "Starting test #{suite}.#{test} with labels #{labels}"
           self.suites[suite][:tests][test] = {
               :title => test,
               :start => timestamp,
@@ -46,7 +46,7 @@ module AllureRubyAdaptorApi
           end
         end
         MUTEX.synchronize do
-          puts "Stopping test #{suite}.#{test}"
+          # puts "Stopping test #{suite}.#{test}"
           self.suites[suite][:tests][test][:stop] = timestamp(result[:finished_at])
           self.suites[suite][:tests][test][:start] = timestamp(result[:started_at]) if result[:started_at]
           self.suites[suite][:tests][test][:status] = result[:status]
@@ -62,7 +62,7 @@ module AllureRubyAdaptorApi
 
       def start_step(suite, test, step)
         MUTEX.synchronize do
-          puts "Starting step #{suite}.#{test}.#{step}"
+          # puts "Starting step #{suite}.#{test}.#{step}"
           self.suites[suite][:tests][test][:steps][step] = {
               :title => step,
               :start => timestamp,
@@ -76,13 +76,13 @@ module AllureRubyAdaptorApi
         step = opts[:step]
         file = opts[:file]
         title = opts[:title] || file.basename
-        puts "Adding attachment #{opts[:title]} to #{suite}.#{test}#{step.nil? ? "" : ".#{step}"}"
+        # puts "Adding attachment #{opts[:title]} to #{suite}.#{test}#{step.nil? ? "" : ".#{step}"}"
         dir = Pathname.new(Dir.pwd).join(config.output_dir)
         FileUtils.mkdir_p(dir)
         file_extname = File.extname(file.path.downcase)
         mime_type = opts[:mime_type] || MimeMagic.by_path(file.path) || "text/plain"
         attachment = dir.join("#{Digest::SHA256.file(file.path).hexdigest}-attachment#{(file_extname.empty?) ? '' : file_extname}")
-        puts "Copying attachment to '#{attachment}'..."
+        # puts "Copying attachment to '#{attachment}'..."
         FileUtils.cp(file.path, attachment)
         attach = {
             :type => mime_type,
@@ -101,7 +101,7 @@ module AllureRubyAdaptorApi
 
       def stop_step(suite, test, step, status = :passed)
         MUTEX.synchronize do
-          puts "Stopping step #{suite}.#{test}.#{step}"
+          # puts "Stopping step #{suite}.#{test}.#{step}"
           self.suites[suite][:tests][test][:steps][step][:stop] = timestamp
           self.suites[suite][:tests][test][:steps][step][:status] = status
         end
@@ -110,7 +110,7 @@ module AllureRubyAdaptorApi
       def stop_suite(title)
         init_suites
         MUTEX.synchronize do
-          puts "Stopping case_or_suite #{title}"
+          # puts "Stopping case_or_suite #{title}"
           self.suites[title][:stop] = timestamp
         end
       end
@@ -157,7 +157,7 @@ module AllureRubyAdaptorApi
             dir = Pathname.new(config.output_dir)
             FileUtils.mkdir_p(dir)
             out_file = dir.join("#{UUID.new.generate}-testsuite.xml")
-            puts "Writing file '#{out_file}'..."
+            # puts "Writing file '#{out_file}'..."
             File.open(out_file, 'w+') do |file|
               file.write(validate_xml(xml))
             end
